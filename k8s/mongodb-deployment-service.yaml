@@ -1,0 +1,49 @@
+# Deployment for the Orders-Service MongoDB
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fareshare-db-deployment
+  namespace: fareshare
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fareshare-db
+  template:
+    metadata:
+      labels:
+        app: fareshare-db
+    spec:
+      containers:
+      - name: fareshare-db
+        image: mongo:5.0
+        ports:
+        - containerPort: 27017
+        env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            valueFrom:
+              secretKeyRef:
+                name: fareshare-mongo-secret
+                key: MONGO_ROOT_USERNAME
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            valueFrom:
+              secretKeyRef:
+                name: fareshare-mongo-secret
+                key: MONGO_ROOT_PASSWORD
+
+
+---
+# Service to expose the Orders-Service MongoDB within the cluster
+apiVersion: v1
+kind: Service
+metadata:
+  name: fareshare-db-service # This is the DNS name our orders-service will use
+  namespace: fareshare
+spec:
+  selector:
+    app: fareshare-db
+  ports:
+  - protocol: TCP
+    port: 27017
+    targetPort: 27017
+  type: ClusterIP

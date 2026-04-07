@@ -1,0 +1,40 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fareshare-backend-deployment
+  labels:
+    app: fareshare-backend
+  namespace: fareshare
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: fareshare-backend
+  template:
+    metadata:
+      labels:
+        app: fareshare-backend
+
+    spec:
+      containers:
+        - name: fareshare-backend
+          image: 979667334110.dkr.ecr.ap-south-1.amazonaws.com/fareshare-backend:v1
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: PORT
+              value: "3000"
+            - name: MONGO_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: fareshare-mongo-secret
+                  key: MONGO_ROOT_USERNAME
+            - name: MONGO_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: fareshare-mongo-secret
+                  key: MONGO_ROOT_PASSWORD
+            # Construct the MONGO_URI
+            - name: MONGO_URI
+              value: "mongodb://$(MONGO_USERNAME):$(MONGO_PASSWORD)@fareshare-db-service:27017/fareshare_db?authSource=admin"

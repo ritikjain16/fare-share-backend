@@ -10,7 +10,8 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
-
+console.log(process.env.PORT);
+console.log(process.env.MONGO_URI);
 // Database connection
 mongoose.connect(process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/splitwise-clone')
   .then(() => console.log('MongoDB connected'))
